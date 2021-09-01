@@ -2,4 +2,4 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Movies from './components/Movies';
 
-ReactDOM.render(<Movies />, document.getElementById('root'));
+ReactDOM.render(<Movies/>, document.getElementById('root'));

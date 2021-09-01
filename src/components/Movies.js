@@ -4,49 +4,61 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
-import { ImageList, ImageListItem } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
-
+import CssBaseline from '@material-ui/core/CssBaseline';
 
 const useStyles = theme => ({
-  icon: {
-    marginRight: theme.spacing(2),
+  main: {
+    display: 'flex',
+    'background-color': '#181A1B',
   },
-  heroContent: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 6),
+  movieGrid: {
+    'margin-top': '20px',
+    '& .MuiGrid-grid-xs-3': {
+      'flex-basis': '20%',
+    }
   },
-  heroButtons: {
-    marginTop: theme.spacing(4),
-  },
-  cardGrid: {
-    paddingTop: theme.spacing(8),
-    paddingBottom: theme.spacing(8),
+  gridItem: {
+    'height': '500px',
+    [theme.breakpoints.up('lg')]: {
+      'flex-basis': '20%',
+    },
+    [theme.breakpoints.up('xl')]: {
+      'flex-basis': '15%',
+    }
   },
   card: {
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
+    border: 'solid #383D3F 1px',
+    'border-radius': '10px',
+    'background-color': '#181A1B',
   },
   cardMedia: {
     paddingTop: '56.25%', // 16:9
-    'background-size': 'contain',
+    height: '100%',
+    // 'background-size': 'contain',
+    'background-color': '#1C1E1F',
   },
   cardContent: {
-    flexGrow: 1,
+    // flexGrow: 1,
+    'background-color': '#1C1E1F',
+    'color': '#E8E6E3',
+    '.MuiTypography-body1': {
+      'color': 'red',
+    }
   },
-  img: {
-    height: '100%',
-    width: 'auto',
-  },
+  label: {
+    height: '10%',
+    'font-family': 'Open Sans Regular,Helvetica Neue,Helvetica,Arial,sans-serif',
+  }
 });
 
 class Movies extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
-
   }
 
   componentDidMount() {
@@ -55,9 +67,14 @@ class Movies extends React.Component {
       .then(
         (response) => {
           console.log(response)
+          let items = response.results
+          items.map((movie) => {
+            let date = new Date(movie.release_date)
+            movie.release_date = date.getFullYear()
+          })
           this.setState({
             isLoaded: true,
-            items: response.results
+            items
           });
         },
         // Note: it's important to handle errors here
@@ -81,41 +98,35 @@ class Movies extends React.Component {
       return <div>Loading...</div>;
     } else {
       return (
-        <React.Fragment>
-          <main>
-            <Container className={classes.cardGrid} maxWidth="lg">
-              <ImageList rowHeight={300} className={classes.imageList} cols={5} gap={20}>
-                {items.map((item) => (
-                  <ImageListItem key={item.img} cols={item.cols || 1}>
-                    <img src={`https://image.tmdb.org/t/p/original/${item.poster_path}`} alt={item.title} className={classes.img} />
-                  </ImageListItem>
-                  
-                ))}
-              </ImageList>
-              {/* {<Grid container spacing={4}>
-                {items.map((item) => (
-                  <Grid item key={item} xs={12} sm={6} md={4} lg={2}>
+        <main className={classes.main}>
+          <CssBaseline />
+          <Grid container>
+            <Grid item xs={2}>...</Grid>
+            <Grid item xs>
+              <Grid className={classes.movieGrid} spacing={2} container>
+                {items.map((movie) => (
+                  <Grid item key={movie.id} xs={12} sm={5} md={3} className={classes.gridItem}>
                     <Card className={classes.card}>
                       <CardMedia
                         className={classes.cardMedia}
-                        image={`https://image.tmdb.org/t/p/original/${item.poster_path}`}
-                        title="Image title"
+                        image={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
+                        title={movie.title}
                       />
                       <CardContent className={classes.cardContent}>
-                        <Typography gutterBottom>
-                          {item.original_title}
+                        <Typography gutterBottom variant="subtitle1" component="h2">
+                          {movie.title}
                         </Typography>
-                        {<Typography variant="body2" color="textSecondary">
-                          {item.overview}
-                        </Typography>}
+                        <Typography variant="body1" component="h2">
+                          {movie.release_date}
+                        </Typography>
                       </CardContent>
                     </Card>
                   </Grid>
                 ))}
-              </Grid>} */}
-            </Container>
-          </main>
-        </React.Fragment>
+              </Grid>
+            </Grid>
+          </Grid>
+        </main>
       )
     }
   }
