@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const useStyles = theme => ({
   main: {
@@ -19,7 +20,7 @@ const useStyles = theme => ({
     }
   },
   gridItem: {
-    'height': '500px',
+    'height': '600px',
     [theme.breakpoints.up('lg')]: {
       'flex-basis': '20%',
     },
@@ -45,48 +46,69 @@ const useStyles = theme => ({
     // flexGrow: 1,
     'background-color': '#1C1E1F',
     'color': '#E8E6E3',
-    '.MuiTypography-body1': {
-      'color': 'red',
-    }
+    'max-height': '16%',
+  },
+  movieTitle: {
+    'line-height': '1.4',
+    'max-height': '75%',
   },
   label: {
     height: '10%',
     'font-family': 'Open Sans Regular,Helvetica Neue,Helvetica,Arial,sans-serif',
+  },
+  infiniteScroll: {
+    'margin': '0 20px',
   }
 });
 
 class Movies extends React.Component {
   constructor(props) {
-    super(props);
-    this.state = {};
+    super(props)
+    this.state = {
+      page: 1,
+      items: []
+    }
   }
 
   componentDidMount() {
-    fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${process.env.REACT_APP_TMDB_API_KEY}&region=us`)
+    this.getMovies()
+  }
+
+  getMovies = () => {
+    fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${process.env.REACT_APP_TMDB_API_KEY}&region=us&page=${this.state.page}`)
       .then(res => res.json())
       .then(
-        (response) => {
-          console.log(response)
-          let items = response.results
-          items.map((movie) => {
-            let date = new Date(movie.release_date)
-            movie.release_date = date.getFullYear()
-          })
-          this.setState({
-            isLoaded: true,
-            items
-          });
-        },
+        (response) => this.updateMovieList(response),
         // Note: it's important to handle errors here
         // instead of a catch() block so that we don't swallow
         // exceptions from actual bugs in components.
         (error) => {
           this.setState({
-            isLoaded: true,
             error
-          });
+          })
         }
       )
+  }
+
+  updateMovieList = (response) => {
+    let items = response.results
+    if (!items.length) {
+      this.setState({ hasMore: false })
+    }
+    items = items.filter((item) => item.poster_path)
+    items.map((movie) => {
+      let date = new Date(movie.release_date)
+      movie.release_date = date.getFullYear()
+    })
+    
+    let newState = {
+      items: this.state.items.concat(items),
+    }
+    if (this.state.page == 1) {
+      newState.isLoaded = true
+    }
+    newState.page = this.state.page + 1
+    this.setState(newState)
   }
 
   render() {
@@ -101,29 +123,40 @@ class Movies extends React.Component {
         <main className={classes.main}>
           <CssBaseline />
           <Grid container>
-            <Grid item xs={2}>...</Grid>
+            {/* <Grid item xs={2}>...</Grid> */}
             <Grid item xs>
-              <Grid className={classes.movieGrid} spacing={2} container>
-                {items.map((movie) => (
-                  <Grid item key={movie.id} xs={12} sm={5} md={3} className={classes.gridItem}>
-                    <Card className={classes.card}>
-                      <CardMedia
-                        className={classes.cardMedia}
-                        image={`https://image.tmdb.org/t/p/original/${movie.poster_path}`}
-                        title={movie.title}
-                      />
-                      <CardContent className={classes.cardContent}>
-                        <Typography gutterBottom variant="subtitle1" component="h2">
-                          {movie.title}
-                        </Typography>
-                        <Typography variant="body1" component="h2">
-                          {movie.release_date}
-                        </Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
+              <InfiniteScroll
+                dataLength={this.state.items.length}
+                next={this.getMovies}
+                hasMore={true}
+                endMessage={
+                  <p style={{ textAlign: 'center' }}>
+                    <b>Yay! You have seen it all</b>
+                  </p>
+                }
+                className={classes.infiniteScroll}>
+                <Grid className={classes.movieGrid} spacing={2} container>
+                  {items.map((movie) => (
+                    <Grid item key={movie.id} xs={12} sm={5} md={3} className={classes.gridItem}>
+                      <Card className={classes.card}>
+                        <CardMedia
+                          className={classes.cardMedia}
+                          image={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+                          title={movie.title}
+                        />
+                        <CardContent className={classes.cardContent}>
+                          <Typography gutterBottom variant="subtitle1" component="h2" className={classes.movieTitle}>
+                            {movie.title}
+                          </Typography>
+                          <Typography variant="body1" component="h2">
+                            {movie.release_date}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              </InfiniteScroll>
             </Grid>
           </Grid>
         </main>
