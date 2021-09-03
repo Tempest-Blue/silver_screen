@@ -7,6 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import InfiniteScroll from "react-infinite-scroll-component";
+import Fade from 'react-reveal/Fade';
 
 const useStyles = theme => ({
   main: {
@@ -26,7 +27,7 @@ const useStyles = theme => ({
     },
     [theme.breakpoints.up('xl')]: {
       'flex-basis': '15%',
-    }
+    },
   },
   card: {
     height: '100%',
@@ -35,6 +36,10 @@ const useStyles = theme => ({
     border: 'solid #383D3F 1px',
     'border-radius': '10px',
     'background-color': '#181A1B',
+    '&:hover': {
+      'cursor': 'pointer',
+      'border': '5px white solid',
+    }
   },
   cardMedia: {
     paddingTop: '56.25%', // 16:9
@@ -58,6 +63,7 @@ const useStyles = theme => ({
   },
   infiniteScroll: {
     'margin': '0 20px',
+    'overflow': 'hidden !important',
   }
 });
 
@@ -92,15 +98,15 @@ class Movies extends React.Component {
 
   updateMovieList = (response) => {
     let items = response.results
-    if (!items.length) {
-      this.setState({ hasMore: false })
-    }
+    // if (!items.length) {
+    //   this.setState({ hasMore: false })
+    // }
     items = items.filter((item) => item.poster_path)
     items.map((movie) => {
       let date = new Date(movie.release_date)
       movie.release_date = date.getFullYear()
     })
-    
+
     let newState = {
       items: this.state.items.concat(items),
     }
@@ -135,27 +141,29 @@ class Movies extends React.Component {
                   </p>
                 }
                 className={classes.infiniteScroll}>
-                <Grid className={classes.movieGrid} spacing={2} container>
-                  {items.map((movie) => (
-                    <Grid item key={movie.id} xs={12} sm={5} md={3} className={classes.gridItem}>
-                      <Card className={classes.card}>
-                        <CardMedia
-                          className={classes.cardMedia}
-                          image={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
-                          title={movie.title}
-                        />
-                        <CardContent className={classes.cardContent}>
-                          <Typography gutterBottom variant="subtitle1" component="h2" className={classes.movieTitle}>
-                            {movie.title}
-                          </Typography>
-                          <Typography variant="body1" component="h2">
-                            {movie.release_date}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
+                <Fade big>
+                  <Grid className={classes.movieGrid} spacing={2} container>
+                    {items.map((movie) => (
+                      <Grid item key={movie.id} xs={12} sm={5} md={3} className={classes.gridItem}>
+                        <Card className={classes.card}>
+                          <CardMedia
+                            className={classes.cardMedia}
+                            image={`https://image.tmdb.org/t/p/original${movie.poster_path}`}
+                            title={movie.title}
+                          />
+                          <CardContent className={classes.cardContent}>
+                            <Typography gutterBottom variant="subtitle1" component="h2" className={classes.movieTitle}>
+                              {movie.title}
+                            </Typography>
+                            <Typography variant="body1" component="h2">
+                              {movie.release_date}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Fade>
               </InfiniteScroll>
             </Grid>
           </Grid>
