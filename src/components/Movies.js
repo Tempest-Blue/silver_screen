@@ -1,13 +1,14 @@
-import React from 'react';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
-import { withStyles } from '@material-ui/core/styles';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import InfiniteScroll from "react-infinite-scroll-component";
-import Fade from 'react-reveal/Fade';
+import React from 'react'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import CardMedia from '@material-ui/core/CardMedia'
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import { withStyles } from '@material-ui/core/styles'
+import CssBaseline from '@material-ui/core/CssBaseline'
+import InfiniteScroll from "react-infinite-scroll-component"
+import Fade from 'react-reveal/Fade'
+import SimpleModal from './modal.js'
 
 const useStyles = theme => ({
   main: {
@@ -26,7 +27,7 @@ const useStyles = theme => ({
       'flex-basis': '20%',
     },
     [theme.breakpoints.up('xl')]: {
-      'flex-basis': '15%',
+      'flex-basis': '14%',
     },
   },
   card: {
@@ -65,7 +66,7 @@ const useStyles = theme => ({
     'margin': '0 20px',
     'overflow': 'hidden !important',
   }
-});
+})
 
 class Movies extends React.Component {
   constructor(props) {
@@ -98,9 +99,10 @@ class Movies extends React.Component {
 
   updateMovieList = (response) => {
     let items = response.results
-    // if (!items.length) {
-    //   this.setState({ hasMore: false })
-    // }
+    console.log(items)
+    if (!items.length) {
+      this.setState({ hasMore: false })
+    }
     items = items.filter((item) => item.poster_path)
     items.map((movie) => {
       let date = new Date(movie.release_date)
@@ -118,16 +120,17 @@ class Movies extends React.Component {
   }
 
   render() {
-    const { classes } = this.props;
-    const { error, isLoaded, items } = this.state;
+    const { classes } = this.props
+    const { error, isLoaded, items } = this.state
     if (error) {
-      return <div>Error: {error.message}</div>;
+      return <div>Error: {error.message}</div>
     } else if (!isLoaded) {
-      return <div>Loading...</div>;
+      return <div>Loading...</div>
     } else {
       return (
         <main className={classes.main}>
           <CssBaseline />
+          {/* <SimpleModal /> */}
           <Grid container>
             {/* <Grid item xs={2}>...</Grid> */}
             <Grid item xs>
@@ -135,11 +138,6 @@ class Movies extends React.Component {
                 dataLength={this.state.items.length}
                 next={this.getMovies}
                 hasMore={true}
-                endMessage={
-                  <p style={{ textAlign: 'center' }}>
-                    <b>Yay! You have seen it all</b>
-                  </p>
-                }
                 className={classes.infiniteScroll}>
                 <Fade big>
                   <Grid className={classes.movieGrid} spacing={2} container>
@@ -173,4 +171,4 @@ class Movies extends React.Component {
   }
 }
 
-export default withStyles(useStyles)(Movies);
+export default withStyles(useStyles)(Movies)
