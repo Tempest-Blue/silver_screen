@@ -1,0 +1,17 @@
+{
+  "files": {
+    "main.js": "/silver_screen/static/js/main.8eb67130.chunk.js",
+    "main.js.map": "/silver_screen/static/js/main.8eb67130.chunk.js.map",
+    "runtime-main.js": "/silver_screen/static/js/runtime-main.2ad6c7dc.js",
+    "runtime-main.js.map": "/silver_screen/static/js/runtime-main.2ad6c7dc.js.map",
+    "static/js/2.cfba0d11.chunk.js": "/silver_screen/static/js/2.cfba0d11.chunk.js",
+    "static/js/2.cfba0d11.chunk.js.map": "/silver_screen/static/js/2.cfba0d11.chunk.js.map",
+    "index.html": "/silver_screen/index.html",
+    "static/js/2.cfba0d11.chunk.js.LICENSE.txt": "/silver_screen/static/js/2.cfba0d11.chunk.js.LICENSE.txt"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.2ad6c7dc.js",
+    "static/js/2.cfba0d11.chunk.js",
+    "static/js/main.8eb67130.chunk.js"
+  ]
+}
