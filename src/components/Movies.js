@@ -137,7 +137,7 @@ class Movies extends React.Component {
 
   updateMovieList = (response) => {
     let items = response.results
-    console.log(items)
+    // console.log(items)
     if (!items.length) {
       this.setState({ hasMore: false })
     }
@@ -172,7 +172,7 @@ class Movies extends React.Component {
     })
       .then(function (response) {
         // Handle the results here (response.result has the parsed body).
-        console.log("Response", response);
+        // console.log("Response", response);
         const video_id = response.result.items[0].id.videoId
         const url = `https://www.youtube.com/watch?v=${video_id}`
         const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
