@@ -110,27 +110,13 @@ class Movies extends React.Component {
     this.getMovies()
     function start() {
       // 2. Initialize the JavaScript client library.
-      window.gapi.client.init({
-        'apiKey': process.env.REACT_APP_YT_API_KEY,
-        // Your API key will be automatically added to the Discovery Document URLs.
-        'discoveryDocs': ['https://people.googleapis.com/$discovery/rest'],
-        // clientId and scope are optional if auth is not required.
-        'clientId': 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
-        'scope': 'profile',
-      }).then(function() {
-        // 3. Initialize and make the API request.
-        return gapi.client.request({
-          'path': 'https://people.googleapis.com/v1/people/me?requestMask.includeField=person.names',
-        })
-      }).then(function(response) {
-        console.log(response.result);
-      }, function(reason) {
-        console.log('Error: ' + reason.result.error.message);
-      })
+      window.gapi.client.setApiKey(process.env.REACT_APP_YT_API_KEY);
+      return window.gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
+        .then(function () { console.log("GAPI client loaded for API"); },
+          function (err) { console.error("Error loading GAPI client for API", err); });
     };
     // 1. Load the JavaScript client library.
     window.gapi.load('client', start);
-    window.gapi.sea
   }
 
   getMovies = () => {
@@ -177,6 +163,24 @@ class Movies extends React.Component {
     if (newWindow) newWindow.opener = null
   }
 
+  openYoutubeInNewTab = (movie_title) => {
+    window.gapi.client.youtube.search.list({
+      "part": "snippet",
+      "maxResults": 1,
+      "q": `${movie_title} + trailer`,
+      "type": "video",
+    })
+      .then(function (response) {
+        // Handle the results here (response.result has the parsed body).
+        console.log("Response", response);
+        const video_id = response.result.items[0].id.videoId
+        const url = `https://www.youtube.com/watch?v=${video_id}`
+        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
+        if (newWindow) newWindow.opener = null
+      },
+        function (err) { console.error("Execute error", err); });
+  }
+
   render() {
     const { classes } = this.props
     const { error, isLoaded, items } = this.state
@@ -219,8 +223,14 @@ class Movies extends React.Component {
                               <div className={classes.hovering}>
                                 <div className={classes.hoverImg} style={{ backgroundImage: `url(https://image.tmdb.org/t/p/original${movie.poster_path})` }}></div>
                                 <div className={classes.hoverLinks}>
-                                  <img src={youtube} onClick={() => this.openInNewTab(`https://www.youtube.com/results?search_query=${movie.title} ${movie.release_date}`)} />
-                                  <img src={rotten_tomatoes} onClick={() => this.openInNewTab(`https://www.rottentomatoes.com/m/${movie.title.replaceAll(' ', '_').replace(/[^a-zA-Z0-9_]/g, '')}`)} />
+                                  <img
+                                    src={youtube}
+                                    alt="Youtube"
+                                    onClick={() => this.openYoutubeInNewTab(`${movie.title} ${movie.release_date}`)} />
+                                  <img 
+                                    src={rotten_tomatoes}
+                                    alt="Rotten Tomatoes"
+                                    onClick={() => this.openInNewTab(`https://www.rottentomatoes.com/m/${movie.title.replaceAll(' ', '_').replace(/[^a-zA-Z0-9_]/g, '')}`)} />
                                 </div>
                               </div>
                             </>
