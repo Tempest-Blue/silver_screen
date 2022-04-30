@@ -10,6 +10,7 @@ import InfiniteScroll from "react-infinite-scroll-component"
 import Fade from 'react-reveal/Fade'
 import youtube from '../images/youtube.png'
 import rotten_tomatoes from '../images/rotten_tomatoes.svg'
+import * as AWS from 'aws-sdk'
 
 const useStyles = theme => ({
   main: {
@@ -97,20 +98,62 @@ const useStyles = theme => ({
 })
 
 class Movies extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = {
       page: 1,
       items: [],
       opened: false,
+      youtube_api_key: null,
+      tmdb_api_key: null,
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    await this.loadAWS()
     this.getMovies()
+    this.loadYoutubeAPI()
+  }
+
+  loadAWS = async () => {
+    const configuration = {
+      region: 'us-west-1',
+      secretAccessKey: process.env.REACT_APP_SECRET_ACCESS_KEY,
+      accessKeyId: process.env.REACT_APP_ACCESS_KEY_ID,
+    }
+    AWS.config.update(configuration)
+    const keys = await this.scanTable('api_keys')
+    const newState = {
+      youtube_api_key: keys.find((key) => key.id.toLowerCase().includes('youtube')).value,
+      tmdb_api_key: keys.find((key) => key.id.toLowerCase().includes('tmdb')).value
+    }
+    this.setState(newState)
+  }
+
+  scanTable = async (tableName) => {
+    var docClient = new AWS.DynamoDB.DocumentClient();
+
+    const params = {
+      TableName: tableName,
+    }
+
+    const scanResults = []
+    let items
+    do {
+      items = await docClient.scan(params).promise()
+      items.Items.forEach((item) => scanResults.push(item))
+      params.ExclusiveStartKey = items.LastEvaluatedKey
+    } while (typeof items.LastEvaluatedKey !== "undefined")
+
+    return scanResults
+  }
+
+  loadYoutubeAPI = () => {
+    const api_key = this.state.youtube_api_key
     function start() {
       // 2. Initialize the JavaScript client library.
-      window.gapi.client.setApiKey(process.env.REACT_APP_YT_API_KEY);
+      window.gapi.client.setApiKey(api_key);
       return window.gapi.client.load("https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest")
         .then(function () { console.log("GAPI client loaded for API"); },
           function (err) { console.error("Error loading GAPI client for API", err); });
@@ -120,7 +163,7 @@ class Movies extends React.Component {
   }
 
   getMovies = () => {
-    fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${process.env.REACT_APP_TMDB_API_KEY}&region=us&page=${this.state.page}`)
+    fetch(`https://api.themoviedb.org/3/movie/now_playing?api_key=${this.state.tmdb_api_key}&region=us&page=${this.state.page}`)
       .then(res => res.json())
       .then(
         (response) => this.updateMovieList(response),
@@ -227,7 +270,7 @@ class Movies extends React.Component {
                                     src={youtube}
                                     alt="Youtube"
                                     onClick={() => this.openYoutubeInNewTab(`${movie.title} ${movie.release_date}`)} />
-                                  <img 
+                                  <img
                                     src={rotten_tomatoes}
                                     alt="Rotten Tomatoes"
                                     onClick={() => this.openInNewTab(`https://www.rottentomatoes.com/m/${movie.title.replaceAll(' ', '_').replace(/[^a-zA-Z0-9_]/g, '')}`)} />
