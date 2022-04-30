@@ -250,8 +250,8 @@ class Movies extends React.Component {
                       <Grid item key={movie.id} xs={12} sm={5} md={3} className={classes.gridItem}>
                         <Card
                           className={classes.card}
-                          onMouseEnter={() => this.setState({ [`${movie.id}_opened`]: !this.state[`${movie.id}_opened`] })}
-                          onMouseLeave={() => this.setState({ [`${movie.id}_opened`]: !this.state[`${movie.id}_opened`] })}>
+                          onMouseEnter={() => this.setState({ [`${movie.id}_opened`]: true })}
+                          onMouseLeave={() => this.setState({ [`${movie.id}_opened`]: false })}>
                           {
                             !this.state[`${movie.id}_opened`] &&
                             <CardMedia
