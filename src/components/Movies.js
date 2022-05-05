@@ -56,7 +56,7 @@ const useStyles = theme => ({
     'grid-template': '\'inner-div\'',
   },
   hoverImg: {
-    'height': '100%',
+    'height': '105%',
     'width': '100%',
     'opacity': '20%',
     'background-size': 'cover',
